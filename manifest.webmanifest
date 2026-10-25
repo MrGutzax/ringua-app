@@ -1,0 +1,35 @@
+{
+  "id": "./",
+  "name": "Ringua · Monitorización hídrica IoT",
+  "short_name": "Ringua",
+  "description": "Monitorización y control IoT de recursos hídricos: nivel de agua, temperatura, humedad del suelo y caudal en tiempo real.",
+  "lang": "es-ES",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a4d8c",
+  "theme_color": "#0a4d8c",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Panel en vivo",
+      "short_name": "Panel",
+      "url": "./#/panel",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Dispositivos",
+      "short_name": "Dispositivos",
+      "url": "./#/dispositivos",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

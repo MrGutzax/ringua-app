@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="titulo-logo">
+  <title id="titulo-logo">Ringua</title>
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a4d8c"/>
+      <stop offset="1" stop-color="#11a6c9"/>
+    </linearGradient>
+  </defs>
+  <!-- Fondo redondeado -->
+  <rect width="512" height="512" rx="112" fill="url(#fondo)"/>
+  <!-- Gota de agua -->
+  <path d="M256 84 C302 148 380 232 380 314 A124 124 0 1 1 132 314 C132 232 210 148 256 84 Z" fill="#ffffff"/>
+  <!-- Red de nodos dentro de la gota -->
+  <g stroke="#0a4d8c" stroke-width="12" stroke-linecap="round">
+    <line x1="256" y1="320" x2="256" y2="232"/>
+    <line x1="256" y1="320" x2="190" y2="362"/>
+    <line x1="256" y1="320" x2="322" y2="362"/>
+  </g>
+  <g fill="#0a4d8c">
+    <circle cx="256" cy="320" r="24"/>
+    <circle cx="256" cy="228" r="16"/>
+    <circle cx="186" cy="364" r="16"/>
+    <circle cx="326" cy="364" r="16"/>
+  </g>
+  <circle cx="256" cy="320" r="10" fill="#11a6c9"/>
+</svg>

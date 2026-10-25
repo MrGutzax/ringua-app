@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ringua</title>
+  <meta name="description" content="Ringua: monitorización y control IoT de recursos hídricos. Nivel de agua, temperatura, humedad del suelo y caudal en tiempo real.">
+  <meta name="theme-color" content="#0a4d8c">
+  <meta name="color-scheme" content="light dark">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/logo.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ringua">
+
+  <!-- Aplica el tema guardado antes de pintar la página (evita el parpadeo) -->
+  <script src="js/tema-inicial.js"></script>
+
+  <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <a href="#contenido" class="visually-hidden-focusable salto-contenido" data-saltar-contenido>Saltar al contenido</a>
+
+  <!-- ===================== CABECERA ===================== -->
+  <header class="cabecera-app">
+    <div class="cabecera-app__fila">
+      <a href="#/inicio" class="marca" aria-label="Ringua, ir a Inicio">
+        <img src="icons/logo.svg" alt="" width="32" height="32" class="marca__logo">
+        <span class="marca__nombre">Ringua</span>
+        <span class="badge rounded-pill marca__beta">BETA</span>
+      </a>
+
+      <div class="cabecera-app__acciones">
+        <span class="badge rounded-pill indicador-offline" data-indicador-offline hidden>
+          <i class="bi bi-wifi-off" aria-hidden="true"></i> Sin conexión
+        </span>
+        <span class="indicador-simulacion" data-indicador-simulacion data-estado="en-vivo" role="status">
+          <span class="indicador-simulacion__punto" aria-hidden="true"></span>
+          <span data-indicador-simulacion-texto>En vivo</span>
+        </span>
+        <button type="button" class="btn btn-sm btn-instalar" data-accion="instalar" hidden>
+          <i class="bi bi-download" aria-hidden="true"></i>
+          <span class="d-none d-sm-inline">Instalar app</span>
+          <span class="d-sm-none">Instalar</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-cabecera" data-accion="alternar-tema" aria-label="Cambiar a tema oscuro">
+          <i class="bi bi-moon-stars" aria-hidden="true" data-icono-tema></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="disposicion">
+    <!-- ===================== BARRA LATERAL (PC) ===================== -->
+    <nav class="barra-lateral" aria-label="Navegación principal">
+      <ul class="barra-lateral__lista">
+        <li><a href="#/inicio" class="enlace-nav" data-nav-enlace="inicio"><i class="bi bi-house" aria-hidden="true"></i><span>Inicio</span></a></li>
+        <li><a href="#/panel" class="enlace-nav" data-nav-enlace="panel"><i class="bi bi-speedometer2" aria-hidden="true"></i><span>Panel</span></a></li>
+        <li><a href="#/dispositivos" class="enlace-nav" data-nav-enlace="dispositivos"><i class="bi bi-hdd-network" aria-hidden="true"></i><span>Dispositivos</span></a></li>
+        <li><a href="#/acerca" class="enlace-nav" data-nav-enlace="acerca"><i class="bi bi-info-circle" aria-hidden="true"></i><span>Acerca de</span></a></li>
+        <li><a href="#/ajustes" class="enlace-nav" data-nav-enlace="ajustes"><i class="bi bi-gear" aria-hidden="true"></i><span>Ajustes</span></a></li>
+      </ul>
+      <p class="barra-lateral__pie">
+        Red 192.168.10.0/24<br>
+        Versión <span data-version-app>0.1.0-beta</span>
+      </p>
+    </nav>
+
+    <!-- ===================== CONTENIDO ===================== -->
+    <main id="contenido" class="contenido" tabindex="-1">
+
+      <!-- ========== PANTALLA: INICIO ========== -->
+      <section class="pantalla" data-pantalla="inicio" aria-labelledby="titulo-inicio">
+        <div class="encabezado-pantalla">
+          <div>
+            <h1 id="titulo-inicio" class="encabezado-pantalla__titulo" tabindex="-1" data-titulo-pantalla>Inicio</h1>
+            <p class="encabezado-pantalla__subtitulo">Resumen de la instalación hídrica</p>
+          </div>
+        </div>
+
+        <!-- Estado general -->
+        <div class="estado-general" data-estado-general data-estado="ok">
+          <i class="bi bi-check-circle-fill estado-general__icono" aria-hidden="true" data-estado-general-icono></i>
+          <div>
+            <p class="estado-general__titulo" data-estado-general-titulo>Todo en orden</p>
+            <p class="estado-general__texto" data-estado-general-texto>Todas las métricas están dentro de sus umbrales.</p>
+          </div>
+        </div>
+
+        <!-- Indicadores principales -->
+        <div class="row row-cols-1 row-cols-sm-3 g-3 mb-4">
+          <div class="col">
+            <a href="#/dispositivos" class="tarjeta-resumen">
+              <span class="tarjeta-resumen__icono tarjeta-resumen__icono--azul" aria-hidden="true"><i class="bi bi-hdd-network"></i></span>
+              <span>
+                <span class="tarjeta-resumen__etiqueta">Dispositivos activos</span>
+                <span class="tarjeta-resumen__valor"><span data-resumen="activos">–</span> <small>de <span data-resumen="total">–</span></small></span>
+              </span>
+            </a>
+          </div>
+          <div class="col">
+            <a href="#/panel" class="tarjeta-resumen">
+              <span class="tarjeta-resumen__icono tarjeta-resumen__icono--ambar" aria-hidden="true"><i class="bi bi-exclamation-triangle-fill"></i></span>
+              <span>
+                <span class="tarjeta-resumen__etiqueta">Alertas activas</span>
+                <span class="tarjeta-resumen__valor" data-resumen="alertas">–</span>
+              </span>
+            </a>
+          </div>
+          <div class="col">
+            <a href="#/panel" class="tarjeta-resumen">
+              <span class="tarjeta-resumen__icono tarjeta-resumen__icono--verde" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
+              <span>
+                <span class="tarjeta-resumen__etiqueta">Última lectura</span>
+                <span class="tarjeta-resumen__valor" data-resumen="ultima-lectura">–</span>
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <!-- Lecturas actuales -->
+          <div class="col-12 col-xl-7">
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h6 mb-0">Lecturas actuales</h2>
+                <a href="#/panel" class="small">Ver panel</a>
+              </div>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item mini-metrica" data-mini-metrica="nivel">
+                  <i class="bi bi-droplet-half" aria-hidden="true"></i>
+                  <span class="mini-metrica__nombre">Nivel de agua</span>
+                  <span class="mini-metrica__valor" data-campo="valor">–</span>
+                  <span class="estado-chip" data-campo="estado">–</span>
+                </li>
+                <li class="list-group-item mini-metrica" data-mini-metrica="temperatura">
+                  <i class="bi bi-thermometer-half" aria-hidden="true"></i>
+                  <span class="mini-metrica__nombre">Temperatura</span>
+                  <span class="mini-metrica__valor" data-campo="valor">–</span>
+                  <span class="estado-chip" data-campo="estado">–</span>
+                </li>
+                <li class="list-group-item mini-metrica" data-mini-metrica="humedad">
+                  <i class="bi bi-moisture" aria-hidden="true"></i>
+                  <span class="mini-metrica__nombre">Humedad del suelo</span>
+                  <span class="mini-metrica__valor" data-campo="valor">–</span>
+                  <span class="estado-chip" data-campo="estado">–</span>
+                </li>
+                <li class="list-group-item mini-metrica" data-mini-metrica="caudal">
+                  <i class="bi bi-water" aria-hidden="true"></i>
+                  <span class="mini-metrica__nombre">Caudal</span>
+                  <span class="mini-metrica__valor" data-campo="valor">–</span>
+                  <span class="estado-chip" data-campo="estado">–</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Actuadores y accesos rápidos -->
+          <div class="col-12 col-xl-5">
+            <div class="card mb-3">
+              <div class="card-header"><h2 class="h6 mb-0">Actuadores</h2></div>
+              <div class="card-body">
+                <div class="actuadores">
+                  <div class="actuador" data-actuador="bomba" data-estado-actuador="apagado">
+                    <i class="bi bi-fan" aria-hidden="true"></i>
+                    <span class="actuador__nombre">Bomba</span>
+                    <span class="actuador__estado" data-actuador-texto>Parada</span>
+                  </div>
+                  <div class="actuador" data-actuador="valvula" data-estado-actuador="apagado">
+                    <i class="bi bi-toggles" aria-hidden="true"></i>
+                    <span class="actuador__nombre">Electroválvula</span>
+                    <span class="actuador__estado" data-actuador-texto>Cerrada</span>
+                  </div>
+                  <div class="actuador" data-actuador="sirena" data-estado-actuador="apagado">
+                    <i class="bi bi-megaphone" aria-hidden="true"></i>
+                    <span class="actuador__nombre">Sirena</span>
+                    <span class="actuador__estado" data-actuador-texto>En reposo</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><h2 class="h6 mb-0">Accesos rápidos</h2></div>
+              <div class="card-body">
+                <div class="accesos-rapidos">
+                  <a href="#/panel" class="btn btn-outline-primary"><i class="bi bi-speedometer2" aria-hidden="true"></i> Panel en vivo</a>
+                  <a href="#/dispositivos" class="btn btn-outline-primary"><i class="bi bi-hdd-network" aria-hidden="true"></i> Dispositivos</a>
+                  <a href="#/acerca" class="btn btn-outline-secondary"><i class="bi bi-diagram-3" aria-hidden="true"></i> Cómo funciona</a>
+                  <a href="#/ajustes" class="btn btn-outline-secondary"><i class="bi bi-gear" aria-hidden="true"></i> Ajustes</a>
+                </div>
+                <p class="small text-body-secondary mb-0 mt-3">
+                  <i class="bi bi-journal-text" aria-hidden="true"></i>
+                  Último evento: <span data-resumen="ultimo-evento">sin eventos</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== PANTALLA: PANEL ========== -->
+      <section class="pantalla" data-pantalla="panel" aria-labelledby="titulo-panel" hidden>
+        <div class="encabezado-pantalla">
+          <div>
+            <h1 id="titulo-panel" class="encabezado-pantalla__titulo" tabindex="-1" data-titulo-pantalla>Panel en vivo</h1>
+            <p class="encabezado-pantalla__subtitulo">Lecturas simuladas · se actualizan cada <span data-intervalo-texto>3 s</span></p>
+          </div>
+          <div class="encabezado-pantalla__acciones">
+            <button type="button" class="btn btn-primary btn-sm" data-accion="alternar-simulacion">
+              <i class="bi bi-pause-fill" aria-hidden="true" data-icono-pausa></i>
+              <span data-texto-pausa>Pausar</span>
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-accion="limpiar-eventos">
+              <i class="bi bi-trash3" aria-hidden="true"></i> Limpiar eventos
+            </button>
+          </div>
+        </div>
+
+        <!-- Métricas -->
+        <div class="row row-cols-2 row-cols-md-4 g-2 g-md-3 mb-3">
+          <div class="col">
+            <article class="tarjeta-metrica" data-metrica="nivel" data-estado="sin-datos" aria-labelledby="metrica-nivel">
+              <header class="tarjeta-metrica__cabecera">
+                <i class="bi bi-droplet-half" aria-hidden="true"></i>
+                <h2 id="metrica-nivel" class="tarjeta-metrica__nombre">Nivel de agua</h2>
+              </header>
+              <p class="tarjeta-metrica__lectura">
+                <span class="tarjeta-metrica__valor" data-campo="valor">–</span>
+                <span class="tarjeta-metrica__unidad">%</span>
+                <span class="tarjeta-metrica__tendencia" data-campo="tendencia"></span>
+              </p>
+              <div class="progress tarjeta-metrica__barra" role="progressbar" aria-label="Nivel de agua" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-campo="barra">
+                <div class="progress-bar" style="width: 0%"></div>
+              </div>
+              <p class="tarjeta-metrica__pie">
+                <span class="estado-chip" data-campo="estado">Sin datos</span>
+                <span class="tarjeta-metrica__rango">Óptimo &gt; 25 %</span>
+              </p>
+            </article>
+          </div>
+          <div class="col">
+            <article class="tarjeta-metrica" data-metrica="temperatura" data-estado="sin-datos" aria-labelledby="metrica-temperatura">
+              <header class="tarjeta-metrica__cabecera">
+                <i class="bi bi-thermometer-half" aria-hidden="true"></i>
+                <h2 id="metrica-temperatura" class="tarjeta-metrica__nombre">Temperatura</h2>
+              </header>
+              <p class="tarjeta-metrica__lectura">
+                <span class="tarjeta-metrica__valor" data-campo="valor">–</span>
+                <span class="tarjeta-metrica__unidad">°C</span>
+                <span class="tarjeta-metrica__tendencia" data-campo="tendencia"></span>
+              </p>
+              <div class="progress tarjeta-metrica__barra" role="progressbar" aria-label="Temperatura" aria-valuemin="0" aria-valuemax="45" aria-valuenow="0" data-campo="barra">
+                <div class="progress-bar" style="width: 0%"></div>
+              </div>
+              <p class="tarjeta-metrica__pie">
+                <span class="estado-chip" data-campo="estado">Sin datos</span>
+                <span class="tarjeta-metrica__rango">Normal 15–30 °C</span>
+              </p>
+            </article>
+          </div>
+          <div class="col">
+            <article class="tarjeta-metrica" data-metrica="humedad" data-estado="sin-datos" aria-labelledby="metrica-humedad">
+              <header class="tarjeta-metrica__cabecera">
+                <i class="bi bi-moisture" aria-hidden="true"></i>
+                <h2 id="metrica-humedad" class="tarjeta-metrica__nombre">Humedad del suelo</h2>
+              </header>
+              <p class="tarjeta-metrica__lectura">
+                <span class="tarjeta-metrica__valor" data-campo="valor">–</span>
+                <span class="tarjeta-metrica__unidad">%</span>
+                <span class="tarjeta-metrica__tendencia" data-campo="tendencia"></span>
+              </p>
+              <div class="progress tarjeta-metrica__barra" role="progressbar" aria-label="Humedad del suelo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-campo="barra">
+                <div class="progress-bar" style="width: 0%"></div>
+              </div>
+              <p class="tarjeta-metrica__pie">
+                <span class="estado-chip" data-campo="estado">Sin datos</span>
+                <span class="tarjeta-metrica__rango">Riego si &lt; 40 %</span>
+              </p>
+            </article>
+          </div>
+          <div class="col">
+            <article class="tarjeta-metrica" data-metrica="caudal" data-estado="sin-datos" aria-labelledby="metrica-caudal">
+              <header class="tarjeta-metrica__cabecera">
+                <i class="bi bi-water" aria-hidden="true"></i>
+                <h2 id="metrica-caudal" class="tarjeta-metrica__nombre">Caudal</h2>
+              </header>
+              <p class="tarjeta-metrica__lectura">
+                <span class="tarjeta-metrica__valor" data-campo="valor">–</span>
+                <span class="tarjeta-metrica__unidad">L/min</span>
+                <span class="tarjeta-metrica__tendencia" data-campo="tendencia"></span>
+              </p>
+              <div class="progress tarjeta-metrica__barra" role="progressbar" aria-label="Caudal" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0" data-campo="barra">
+                <div class="progress-bar" style="width: 0%"></div>
+              </div>
+              <p class="tarjeta-metrica__pie">
+                <span class="estado-chip" data-campo="estado">Sin datos</span>
+                <span class="tarjeta-metrica__rango">Normal 5–25 L/min</span>
+              </p>
+            </article>
+          </div>
+        </div>
+
+        <!-- Actuadores (resumen compacto) -->
+        <div class="actuadores actuadores--compacto mb-3" aria-label="Estado de los actuadores" role="group">
+          <div class="actuador" data-actuador="bomba" data-estado-actuador="apagado">
+            <i class="bi bi-fan" aria-hidden="true"></i>
+            <span class="actuador__nombre">Bomba</span>
+            <span class="actuador__estado" data-actuador-texto>Parada</span>
+          </div>
+          <div class="actuador" data-actuador="valvula" data-estado-actuador="apagado">
+            <i class="bi bi-toggles" aria-hidden="true"></i>
+            <span class="actuador__nombre">Válvula</span>
+            <span class="actuador__estado" data-actuador-texto>Cerrada</span>
+          </div>
+          <div class="actuador" data-actuador="sirena" data-estado-actuador="apagado">
+            <i class="bi bi-megaphone" aria-hidden="true"></i>
+            <span class="actuador__nombre">Sirena</span>
+            <span class="actuador__estado" data-actuador-texto>En reposo</span>
+          </div>
+        </div>
+
+        <!-- Eventos -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="h6 mb-0">Últimos eventos</h2>
+            <span class="badge text-bg-secondary rounded-pill" data-contador-eventos>0</span>
+          </div>
+          <ul class="list-group list-group-flush lista-eventos" data-lista-eventos tabindex="0" aria-label="Lista de últimos eventos"></ul>
+          <div class="estado-vacio" data-sin-eventos>
+            <i class="bi bi-journal-text" aria-hidden="true"></i>
+            <p class="mb-0">Todavía no hay eventos. Aparecerán aquí cuando una regla se active.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== PANTALLA: DISPOSITIVOS ========== -->
+      <section class="pantalla" data-pantalla="dispositivos" aria-labelledby="titulo-dispositivos" hidden>
+        <div class="encabezado-pantalla">
+          <div>
+            <h1 id="titulo-dispositivos" class="encabezado-pantalla__titulo" tabindex="-1" data-titulo-pantalla>Dispositivos</h1>
+            <p class="encabezado-pantalla__subtitulo">Sensores, actuadores y equipos de red de la subred 192.168.10.0/24</p>
+          </div>
+        </div>
+
+        <div class="barra-filtros">
+          <div class="filtros-tipo" role="group" aria-label="Filtrar por tipo">
+            <button type="button" class="btn btn-sm filtro-chip" data-filtro="todos" aria-pressed="true">Todos</button>
+            <button type="button" class="btn btn-sm filtro-chip" data-filtro="sensor" aria-pressed="false"><i class="bi bi-broadcast" aria-hidden="true"></i> Sensores</button>
+            <button type="button" class="btn btn-sm filtro-chip" data-filtro="actuador" aria-pressed="false"><i class="bi bi-lightning-charge" aria-hidden="true"></i> Actuadores</button>
+            <button type="button" class="btn btn-sm filtro-chip" data-filtro="red" aria-pressed="false"><i class="bi bi-router" aria-hidden="true"></i> Red</button>
+          </div>
+          <div class="buscador">
+            <label for="buscador-dispositivos" class="form-label visually-hidden">Buscar dispositivo</label>
+            <div class="input-group">
+              <span class="input-group-text" aria-hidden="true"><i class="bi bi-search"></i></span>
+              <input type="search" id="buscador-dispositivos" class="form-control" placeholder="Buscar por nombre, ID, IP o ubicación" autocomplete="off" data-buscador>
+            </div>
+          </div>
+        </div>
+
+        <p class="contador-resultados" data-contador-resultados role="status" aria-live="polite">Cargando dispositivos…</p>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3" data-catalogo></div>
+
+        <div class="estado-vacio estado-vacio--grande" data-sin-resultados hidden>
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <p class="fw-semibold mb-1">No hay dispositivos que coincidan</p>
+          <p class="mb-3">Prueba con otro término o cambia el filtro de tipo.</p>
+          <button type="button" class="btn btn-outline-primary btn-sm" data-accion="borrar-filtros">
+            <i class="bi bi-x-circle" aria-hidden="true"></i> Borrar filtros
+          </button>
+        </div>
+      </section>
+
+      <!-- ========== PANTALLA: ACERCA DE ========== -->
+      <section class="pantalla" data-pantalla="acerca" aria-labelledby="titulo-acerca" hidden>
+        <div class="encabezado-pantalla">
+          <div>
+            <h1 id="titulo-acerca" class="encabezado-pantalla__titulo" tabindex="-1" data-titulo-pantalla>Acerca de Ringua</h1>
+            <p class="encabezado-pantalla__subtitulo">Versión <span data-version-app>0.1.0-beta</span></p>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <h2 class="h5">¿Qué es Ringua?</h2>
+            <p>
+              Ringua es un sistema de monitorización y control IoT de recursos hídricos. Una red de sensores mide el agua
+              y su entorno, un Home Gateway centraliza las comunicaciones y una placa controladora con scripts en Python
+              aplica reglas de automatización para activar la bomba, la electroválvula de riego o la sirena de emergencia
+              sin intervención humana.
+            </p>
+            <p class="mb-0">
+              Desde este panel puedes supervisar las lecturas en tiempo real, revisar los eventos generados y activar o
+              desactivar cada dispositivo de la instalación.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <h2 class="h5">Cómo funciona</h2>
+            <p class="text-body-secondary">Recorrido de los datos desde que se mide el agua hasta que llegan a tu pantalla.</p>
+
+            <ol class="flujo" aria-label="Flujo de datos de Ringua">
+              <li class="flujo__paso">
+                <span class="flujo__icono flujo__icono--sensor" aria-hidden="true"><i class="bi bi-broadcast"></i></span>
+                <span class="flujo__titulo">Sensores</span>
+                <span class="flujo__detalle">Nivel, temperatura, humedad y caudal<br><code>.11 – .14</code></span>
+              </li>
+              <li class="flujo__paso">
+                <span class="flujo__flecha" aria-hidden="true"><i class="bi bi-arrow-down"></i></span>
+                <span class="flujo__icono flujo__icono--red" aria-hidden="true"><i class="bi bi-router"></i></span>
+                <span class="flujo__titulo">Home Gateway</span>
+                <span class="flujo__detalle">Recibe y reenvía las lecturas<br><code>192.168.10.1</code></span>
+              </li>
+              <li class="flujo__paso">
+                <span class="flujo__flecha" aria-hidden="true"><i class="bi bi-arrow-down"></i></span>
+                <span class="flujo__icono flujo__icono--red" aria-hidden="true"><i class="bi bi-cpu"></i></span>
+                <span class="flujo__titulo">Controlador SBC</span>
+                <span class="flujo__detalle">Scripts Python evalúan las reglas<br><code>192.168.10.5</code></span>
+              </li>
+              <li class="flujo__paso">
+                <span class="flujo__flecha" aria-hidden="true"><i class="bi bi-arrow-down"></i></span>
+                <span class="flujo__icono flujo__icono--actuador" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
+                <span class="flujo__titulo">Actuadores</span>
+                <span class="flujo__detalle">Válvula, bomba y sirena<br><code>.21 – .23</code></span>
+              </li>
+              <li class="flujo__paso">
+                <span class="flujo__flecha" aria-hidden="true"><i class="bi bi-arrow-down"></i></span>
+                <span class="flujo__icono flujo__icono--panel" aria-hidden="true"><i class="bi bi-speedometer2"></i></span>
+                <span class="flujo__titulo">Panel Ringua</span>
+                <span class="flujo__detalle">Supervisión, eventos y control manual</span>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-xl-7">
+            <div class="card h-100">
+              <div class="card-body">
+                <h2 class="h5">Reglas de automatización</h2>
+                <div class="table-responsive">
+                  <table class="table table-sm align-middle mb-0">
+                    <caption class="visually-hidden">Umbrales y acciones automáticas</caption>
+                    <thead>
+                      <tr><th scope="col">Métrica</th><th scope="col">Condición</th><th scope="col">Acción</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><th scope="row">Nivel de agua</th><td>&lt; 25 %</td><td>Arranca la bomba y registra una alerta. Se detiene al llegar al 80 %.</td></tr>
+                      <tr><th scope="row">Temperatura</th><td>Fuera de 15–30 °C</td><td>Registra un aviso.</td></tr>
+                      <tr><th scope="row">Humedad del suelo</th><td>&lt; 40 %</td><td>Abre la electroválvula del Sector A durante 6 minutos.</td></tr>
+                      <tr><th scope="row">Caudal</th><td>Fuera de 5–25 L/min</td><td>Aviso de posible fuga. Por encima de 35 L/min activa la sirena.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-5">
+            <div class="card h-100">
+              <div class="card-body">
+                <h2 class="h5">Red</h2>
+                <dl class="lista-datos mb-0">
+                  <dt>Subred</dt><dd><code>192.168.10.0/24</code></dd>
+                  <dt>Gateway</dt><dd><code>192.168.10.1</code></dd>
+                  <dt>Controlador</dt><dd><code>192.168.10.5</code></dd>
+                  <dt>Sensores</dt><dd><code>192.168.10.11 – .14</code></dd>
+                  <dt>Actuadores</dt><dd><code>192.168.10.21 – .23</code></dd>
+                  <dt>Entorno</dt><dd>Red simulada en Cisco Packet Tracer</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h2 class="h5">Tecnologías</h2>
+            <ul class="tecnologias">
+              <li><i class="bi bi-filetype-html" aria-hidden="true"></i> HTML5 semántico</li>
+              <li><i class="bi bi-bootstrap" aria-hidden="true"></i> Bootstrap 5.3 y Bootstrap Icons</li>
+              <li><i class="bi bi-filetype-js" aria-hidden="true"></i> JavaScript con módulos ES</li>
+              <li><i class="bi bi-cloud-arrow-down" aria-hidden="true"></i> PWA: manifest y service worker</li>
+              <li><i class="bi bi-hdd-stack" aria-hidden="true"></i> localStorage para el estado</li>
+              <li><i class="bi bi-filetype-py" aria-hidden="true"></i> Python en la placa controladora</li>
+              <li><i class="bi bi-diagram-3" aria-hidden="true"></i> Cisco Packet Tracer</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== PANTALLA: AJUSTES ========== -->
+      <section class="pantalla" data-pantalla="ajustes" aria-labelledby="titulo-ajustes" hidden>
+        <div class="encabezado-pantalla">
+          <div>
+            <h1 id="titulo-ajustes" class="encabezado-pantalla__titulo" tabindex="-1" data-titulo-pantalla>Ajustes</h1>
+            <p class="encabezado-pantalla__subtitulo">Preferencias de la aplicación</p>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-12 col-xl-6">
+            <div class="card mb-3">
+              <div class="card-body">
+                <fieldset>
+                  <legend class="h6">Tema</legend>
+                  <div class="opciones-tema">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="tema" id="tema-claro" value="claro" data-opcion-tema>
+                      <label class="form-check-label" for="tema-claro"><i class="bi bi-sun" aria-hidden="true"></i> Claro</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="tema" id="tema-oscuro" value="oscuro" data-opcion-tema>
+                      <label class="form-check-label" for="tema-oscuro"><i class="bi bi-moon-stars" aria-hidden="true"></i> Oscuro</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="tema" id="tema-sistema" value="sistema" data-opcion-tema>
+                      <label class="form-check-label" for="tema-sistema"><i class="bi bi-circle-half" aria-hidden="true"></i> Según el sistema</label>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-body">
+                <label for="ajuste-intervalo" class="form-label h6">Intervalo de actualización del panel</label>
+                <select id="ajuste-intervalo" class="form-select" data-ajuste="intervalo" aria-describedby="ayuda-intervalo">
+                  <option value="2000">Cada 2 segundos</option>
+                  <option value="3000">Cada 3 segundos</option>
+                  <option value="5000">Cada 5 segundos</option>
+                  <option value="10000">Cada 10 segundos</option>
+                </select>
+                <p id="ayuda-intervalo" class="form-text mb-0">Cada actualización equivale a un minuto de funcionamiento de la instalación.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-xl-6">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h2 class="h6">Instalar la aplicación</h2>
+                <p class="small mb-2" data-instalacion-estado>
+                  Ringua se puede instalar como una aplicación y funciona sin conexión.
+                </p>
+                <button type="button" class="btn btn-primary btn-sm" data-accion="instalar" hidden>
+                  <i class="bi bi-download" aria-hidden="true"></i> Instalar app
+                </button>
+                <div class="alert alert-info small mb-0 mt-2" data-instrucciones-ios hidden>
+                  <strong>En iPhone o iPad:</strong> abre Ringua en Safari, pulsa
+                  <i class="bi bi-box-arrow-up" aria-label="Compartir"></i> <em>Compartir</em> y elige
+                  <i class="bi bi-plus-square" aria-hidden="true"></i> <em>Añadir a pantalla de inicio</em>.
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-body">
+                <h2 class="h6">Datos de la demo</h2>
+                <p class="small">Restablece el estado de los dispositivos, las lecturas y los eventos. Tu tema y el intervalo se mantienen.</p>
+                <button type="button" class="btn btn-outline-danger btn-sm" data-accion="restablecer">
+                  <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Restablecer datos
+                </button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body">
+                <h2 class="h6">Información</h2>
+                <dl class="lista-datos mb-0">
+                  <dt>Versión</dt><dd><span data-version-app>0.1.0-beta</span></dd>
+                  <dt>Caché sin conexión</dt><dd data-version-cache>–</dd>
+                  <dt>Modo sin conexión</dt><dd data-estado-offline>Comprobando…</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===================== BARRA INFERIOR (MÓVIL) ===================== -->
+  <nav class="barra-inferior" aria-label="Navegación principal">
+    <ul class="barra-inferior__lista">
+      <li><a href="#/inicio" class="enlace-nav" data-nav-enlace="inicio"><i class="bi bi-house" aria-hidden="true"></i><span>Inicio</span></a></li>
+      <li><a href="#/panel" class="enlace-nav" data-nav-enlace="panel"><i class="bi bi-speedometer2" aria-hidden="true"></i><span>Panel</span></a></li>
+      <li><a href="#/dispositivos" class="enlace-nav" data-nav-enlace="dispositivos"><i class="bi bi-hdd-network" aria-hidden="true"></i><span>Dispositivos</span></a></li>
+      <li><a href="#/acerca" class="enlace-nav" data-nav-enlace="acerca"><i class="bi bi-info-circle" aria-hidden="true"></i><span>Acerca</span></a></li>
+      <li><a href="#/ajustes" class="enlace-nav" data-nav-enlace="ajustes"><i class="bi bi-gear" aria-hidden="true"></i><span>Ajustes</span></a></li>
+    </ul>
+  </nav>
+
+  <!-- ===================== MODAL: DETALLE DE DISPOSITIVO ===================== -->
+  <div class="modal fade" tabindex="-1" aria-labelledby="detalle-titulo" aria-hidden="true" data-modal-detalle>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="icono-dispositivo me-2" data-detalle="icono" aria-hidden="true"><i class="bi bi-broadcast"></i></span>
+          <div class="flex-grow-1">
+            <h2 class="modal-title h5" id="detalle-titulo" data-detalle="nombre">Dispositivo</h2>
+            <p class="small text-body-secondary mb-0"><span data-detalle="id">–</span> · <span data-detalle="tipo">–</span></p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p data-detalle="descripcion"></p>
+
+          <div class="lectura-detalle" data-detalle="lectura-contenedor">
+            <span class="lectura-detalle__etiqueta" data-detalle="lectura-etiqueta">Lectura actual</span>
+            <span class="lectura-detalle__valor" data-detalle="lectura">–</span>
+          </div>
+
+          <dl class="lista-datos">
+            <dt>Dirección IP</dt><dd><code data-detalle="ip">–</code></dd>
+            <dt>Ubicación</dt><dd data-detalle="ubicacion">–</dd>
+            <dt>Script</dt><dd><code data-detalle="script">–</code></dd>
+            <dt>Estado</dt><dd><span class="estado-dispositivo" data-detalle="estado">–</span></dd>
+          </dl>
+
+          <div class="interruptor-dispositivo">
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" role="switch" id="interruptor-dispositivo" data-detalle-interruptor aria-describedby="ayuda-interruptor">
+              <label class="form-check-label fw-semibold" for="interruptor-dispositivo">Dispositivo activo</label>
+            </div>
+            <p id="ayuda-interruptor" class="form-text mb-0" data-detalle="ayuda">Al desactivarlo deja de participar en las reglas automáticas.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: CONFIRMAR RESTABLECER ===================== -->
+  <div class="modal fade" tabindex="-1" aria-labelledby="confirmar-titulo" aria-hidden="true" data-modal-confirmar>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="confirmar-titulo">¿Restablecer los datos de la demo?</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-0">Los dispositivos vuelven a su estado inicial, se borran los eventos y la simulación empieza de nuevo.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" data-accion="confirmar-restablecer">Restablecer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== AVISOS (TOASTS) ===================== -->
+  <div class="toast-container contenedor-avisos" data-contenedor-avisos></div>
+  <div class="visually-hidden" aria-live="polite" aria-atomic="true" data-anuncio></div>
+
+  <!-- ===================== PLANTILLAS ===================== -->
+  <template data-plantilla="dispositivo">
+    <div class="col" data-dispositivo-id>
+      <article class="card h-100 tarjeta-dispositivo">
+        <div class="card-body">
+          <div class="tarjeta-dispositivo__cabecera">
+            <span class="icono-dispositivo" data-campo="icono" aria-hidden="true"><i class="bi"></i></span>
+            <div class="flex-grow-1 min-w-0">
+              <h2 class="tarjeta-dispositivo__nombre" data-campo="nombre"></h2>
+              <p class="tarjeta-dispositivo__id"><span data-campo="id"></span> · <span data-campo="tipo"></span></p>
+            </div>
+            <span class="estado-dispositivo" data-campo="estado"></span>
+          </div>
+          <dl class="tarjeta-dispositivo__datos">
+            <dt>IP</dt><dd><code data-campo="ip"></code></dd>
+            <dt>Ubicación</dt><dd data-campo="ubicacion"></dd>
+          </dl>
+          <button type="button" class="btn btn-link btn-sm p-0 stretched-link" data-abrir-detalle>
+            Ver detalle<span class="visually-hidden" data-campo="nombre-oculto"></span>
+          </button>
+        </div>
+      </article>
+    </div>
+  </template>
+
+  <template data-plantilla="evento">
+    <li class="list-group-item evento" data-nivel="info">
+      <i class="bi evento__icono" aria-hidden="true"></i>
+      <div class="evento__cuerpo">
+        <p class="evento__mensaje"></p>
+        <p class="evento__meta"><time></time> · <span class="evento__dispositivo"></span></p>
+      </div>
+    </li>
+  </template>
+
+  <template data-plantilla="aviso">
+    <div class="toast align-items-center border-0" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex align-items-center">
+        <div class="toast-body" data-aviso-texto></div>
+        <button type="button" class="btn btn-sm btn-light me-2" data-aviso-accion hidden></button>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </template>
+
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

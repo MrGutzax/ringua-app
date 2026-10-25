@@ -1,5 +1,31 @@
+# Sistema operativo
 Thumbs.db
 .DS_Store
+
+# Registros y dependencias
 *.log
-.claude/
 node_modules/
+
+# Configuración local de herramientas (Claude Code, editores)
+.claude/
+.claude/settings.local.json
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Claves, certificados y credenciales
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.keystore
+*.jks
+id_rsa*
+id_ed25519*
+*.ppk
+credentials.json
+secrets.json

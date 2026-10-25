@@ -1,0 +1,116 @@
+{
+  "red": {
+    "subred": "192.168.10.0/24",
+    "gateway": "192.168.10.1"
+  },
+  "dispositivos": [
+    {
+      "id": "DEV-01",
+      "nombre": "Sensor de Nivel de Agua",
+      "tipo": "sensor",
+      "estado": "activo",
+      "ip": "192.168.10.11",
+      "ubicacion": "Depósito Principal",
+      "script": "sensor_nivel.py",
+      "icono": "droplet-half",
+      "metrica": "nivel",
+      "descripcion": "Sensor ultrasónico instalado en la tapa del depósito. Mide la distancia hasta la lámina de agua y la convierte en porcentaje de llenado para que el controlador decida cuándo arrancar la bomba."
+    },
+    {
+      "id": "DEV-02",
+      "nombre": "Sensor de Temperatura Ambiente",
+      "tipo": "sensor",
+      "estado": "activo",
+      "ip": "192.168.10.12",
+      "ubicacion": "Zona Exterior Norte",
+      "script": "sensor_temperatura.py",
+      "icono": "thermometer-half",
+      "metrica": "temperatura",
+      "descripcion": "Sonda digital protegida por una garita contra la radiación solar. Registra la temperatura exterior y genera un aviso cuando sale del rango de trabajo de 15 a 30 °C."
+    },
+    {
+      "id": "DEV-03",
+      "nombre": "Sensor de Humedad del Suelo",
+      "tipo": "sensor",
+      "estado": "activo",
+      "ip": "192.168.10.13",
+      "ubicacion": "Sector de Riego A",
+      "script": "sensor_humedad.py",
+      "icono": "moisture",
+      "metrica": "humedad",
+      "descripcion": "Sonda capacitiva enterrada a 20 cm de profundidad. Mide el porcentaje de humedad del suelo y solicita un ciclo de riego cuando baja del 40 %."
+    },
+    {
+      "id": "DEV-04",
+      "nombre": "Caudalímetro de Tubería Principal",
+      "tipo": "sensor",
+      "estado": "activo",
+      "ip": "192.168.10.14",
+      "ubicacion": "Conducto Central",
+      "script": "sensor_caudal.py",
+      "icono": "water",
+      "metrica": "caudal",
+      "descripcion": "Caudalímetro de turbina en la tubería de salida del depósito. Mide el consumo en litros por minuto y detecta caudales anómalos que pueden indicar una fuga."
+    },
+    {
+      "id": "DEV-05",
+      "nombre": "Electroválvula de Riego Sector A",
+      "tipo": "actuador",
+      "estado": "activo",
+      "ip": "192.168.10.21",
+      "ubicacion": "Sector de Riego A",
+      "script": "actuador_valvula.py",
+      "icono": "toggles",
+      "actuador": "valvula",
+      "descripcion": "Electroválvula de 24 V normalmente cerrada que da paso al agua de riego del Sector A. Se abre durante unos minutos cuando el suelo está demasiado seco."
+    },
+    {
+      "id": "DEV-06",
+      "nombre": "Bomba de Impulsión de Agua",
+      "tipo": "actuador",
+      "estado": "activo",
+      "ip": "192.168.10.22",
+      "ubicacion": "Depósito Principal",
+      "script": "actuador_bomba.py",
+      "icono": "fan",
+      "actuador": "bomba",
+      "descripcion": "Bomba centrífuga que impulsa agua desde el pozo de captación hasta el depósito. Arranca cuando el nivel baja del 25 % y se detiene al recuperar el 80 %."
+    },
+    {
+      "id": "DEV-07",
+      "nombre": "Sirena y Baliza de Emergencia",
+      "tipo": "actuador",
+      "estado": "inactivo",
+      "ip": "192.168.10.23",
+      "ubicacion": "Caseta de Control",
+      "script": "actuador_alarma.py",
+      "icono": "megaphone",
+      "actuador": "sirena",
+      "descripcion": "Sirena acústica con baliza luminosa de color ámbar. Se dispara ante una fuga grave para avisar al personal de la instalación."
+    },
+    {
+      "id": "DEV-08",
+      "nombre": "Home Gateway IoT Central",
+      "tipo": "red",
+      "estado": "activo",
+      "ip": "192.168.10.1",
+      "ubicacion": "Rack de Comunicaciones",
+      "script": "gateway_reglas.py",
+      "icono": "router",
+      "funcion": "gateway",
+      "descripcion": "Punto central de la red 192.168.10.0/24. Registra los dispositivos, recibe las lecturas de los sensores y reenvía las órdenes a los actuadores."
+    },
+    {
+      "id": "DEV-09",
+      "nombre": "Placa Controladora SBC Python",
+      "tipo": "red",
+      "estado": "activo",
+      "ip": "192.168.10.5",
+      "ubicacion": "Caseta de Control",
+      "script": "controlador_principal.py",
+      "icono": "cpu",
+      "funcion": "controlador",
+      "descripcion": "Ordenador de placa única que ejecuta los scripts en Python. Evalúa las reglas de automatización con cada lectura y decide qué actuadores se activan."
+    }
+  ]
+}

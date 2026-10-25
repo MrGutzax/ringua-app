@@ -240,11 +240,15 @@ function aplicarSeguridad() {
   }
 }
 
-/** Valor que "ve" el controlador: null si el sensor está inactivo o no hay gateway. */
+/**
+ * Valor que "ve" el controlador: null si el sensor está inactivo o no hay
+ * gateway. Se redondea a una décima, la resolución de los sensores, para que
+ * las reglas y los textos usen exactamente el mismo número.
+ */
 function lecturaVisible(clave) {
   if (estado.comunicacion === 'sin-gateway') return null;
   if (!estaActivo(METRICAS[clave].dispositivo)) return null;
-  return estado.metricas[clave];
+  return Math.round(estado.metricas[clave] * 10) / 10;
 }
 
 /** Registra un aviso de "no disponible" solo una vez por situación. */
